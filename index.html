@@ -17,13 +17,14 @@
   <a-entity light="type: point; color: #cc88ff; intensity: 0.7" position="-3 1 -2"></a-entity>
   <a-entity light="type: point; color: #ff99cc; intensity: 0.5" position="3 2 -2"></a-entity>
 
-
   <a-entity id="rig" position="0 1.6 6" scale="1 1 1" wasd-controls>
     <a-entity id="camera" camera look-controls position="0 1.6 0">
       <a-cursor fuse="false" raycaster="objects: .interactable" material="color: white; shader: flat"></a-cursor>
     </a-entity>
-  </a-entity>
 
+    <a-entity laser-controls="hand: left" raycaster="objects: .interactable"></a-entity>
+    <a-entity laser-controls="hand: right" raycaster="objects: .interactable"></a-entity>
+  </a-entity>
 
   <a-plane rotation="-90 0 0" width="10" height="10" color="#222"></a-plane>
   <a-plane position="0 10 0" rotation="-90 0 0" width="10" height="10" color="#ce93d8"></a-plane> 
@@ -31,7 +32,6 @@
   <a-plane position="0 2 5" rotation="0 180 0" width="10" height="7" color="#9c27b0"></a-plane> 
   <a-plane position="-5 2 0" rotation="0 90 0" width="10" height="7" color="#7b1fa2"></a-plane> 
   <a-plane position="5 2 0" rotation="0 -90 0" width="10" height="7" color="#ab47bc"></a-plane> 
-
 
   <a-entity id="porta" class="interactable"
             gltf-model="url(coisas/modelos/Door.glb)"
@@ -45,7 +45,6 @@
             text="value: clica em um objeto; align: center; color: white; width: 4"
             position="0 5 -5">
   </a-entity>
-
 
   <a-entity id="Mesacomobjeto" class="interactable"
             gltf-model="url(coisas/modelos/Table.glb)"
@@ -101,20 +100,18 @@
             interactive-chair="label: Aqui todos somos loucos">
   </a-entity>
 
-
   <a-entity id="sommesa"
             sound="src: url(coisas/som/som.mp3); volume: 0.7">
   </a-entity>
-
 
   <script>
     AFRAME.registerComponent('interactive-chair', {
       schema: { label: {type: 'string', default: 'Cadeira'} },
       init: function() {
         const labelEl = document.querySelector('#doorLabel');
-        this.el.addEventListener('click', () => {
-          labelEl.setAttribute('text','value', this.data.label);
-        });
+        const el = this.el;
+        el.addEventListener('click', () => { labelEl.setAttribute('text','value', this.data.label); });
+        el.addEventListener('triggerdown', () => { labelEl.setAttribute('text','value', this.data.label); });
       }
     });
 
@@ -122,15 +119,11 @@
       init: function() {
         const labelEl = document.querySelector('#doorLabel');
         const el = this.el;
-        el.addEventListener('mouseenter', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('green'); });
-        });
-        el.addEventListener('mouseleave', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
-        });
-        el.addEventListener('click', () => {
-          labelEl.setAttribute('text','value','O impossível é apenas uma opinião');
-        });
+        const setColor = (color) => el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set(color); });
+        el.addEventListener('mouseenter', () => setColor('green'));
+        el.addEventListener('mouseleave', () => setColor('white'));
+        el.addEventListener('click', () => { labelEl.setAttribute('text','value','O impossível é apenas uma opinião'); });
+        el.addEventListener('triggerdown', () => { labelEl.setAttribute('text','value','O impossível é apenas uma opinião'); });
       }
     });
 
@@ -140,19 +133,17 @@
         const potionSound = document.querySelector('#potionSound');
         const rig = document.querySelector('#rig');
         const el = this.el;
-        el.addEventListener('mouseenter', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('pink'); });
-        });
-        el.addEventListener('mouseleave', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
-        });
-        el.addEventListener('click', () => {
+        const setColor = (color) => el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set(color); });
+        el.addEventListener('mouseenter', () => setColor('pink'));
+        el.addEventListener('mouseleave', () => setColor('white'));
+        const changeScale = () => {
           const scale = rig.object3D.scale.x;
-          if (scale === 1) rig.object3D.scale.set(0.2, 0.2, 0.2);
-          else rig.object3D.scale.set(1, 1, 1);
+          rig.object3D.scale.set(scale === 1 ? 0.2 : 1, scale === 1 ? 0.2 : 1, scale === 1 ? 0.2 : 1);
           labelEl.setAttribute('text','value','Se eu ficar pequena ou grande demais, o mundo muda de tamanho também.');
-          potionSound.components.sound.playSound();
-        });
+          if (potionSound) potionSound.components.sound.playSound();
+        };
+        el.addEventListener('click', changeScale);
+        el.addEventListener('triggerdown', changeScale);
       }
     });
 
@@ -161,17 +152,16 @@
         const labelEl = document.querySelector('#doorLabel');
         const rig = document.querySelector('#rig');
         const el = this.el;
-        el.addEventListener('mouseenter', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('yellow'); });
-        });
-        el.addEventListener('mouseleave', () => {
-          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
-        });
-        el.addEventListener('click', () => {
-          rig.object3D.position.set(0, 1.6, 4); 
+        const setColor = (color) => el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set(color); });
+        el.addEventListener('mouseenter', () => setColor('yellow'));
+        el.addEventListener('mouseleave', () => setColor('white'));
+        const moveRig = () => {
+          rig.object3D.position.set(0, 1.6, 4);
           rig.object3D.scale.set(1,1,1);
           labelEl.setAttribute('text','value','Não vale a pena voltar a ontem, porque eu era outra pessoa.');
-        });
+        };
+        el.addEventListener('click', moveRig);
+        el.addEventListener('triggerdown', moveRig);
       }
     });
   </script>
@@ -179,4 +169,3 @@
 </a-scene>
 </body>
 </html>
-
