@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Alice no País das Maravilhas — A-Frame</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: rgb(255, 114, 229); }
+  </style>
+</head>
+
+<body>
+<a-scene background="color: rgb(255, 114, 229)">
+
+  <a-entity light="type: ambient; color: #cccccc; intensity: 0.6"></a-entity>
+  <a-entity light="type: directional; color: #ffffff; intensity: 1.5" position="0 5 5" rotation="-45 0 0"></a-entity>
+  <a-entity light="type: point; color: #cc88ff; intensity: 0.7" position="-3 1 -2"></a-entity>
+  <a-entity light="type: point; color: #ff99cc; intensity: 0.5" position="3 2 -2"></a-entity>
+
+
+  <a-entity id="rig" position="0 1.6 6" scale="1 1 1" wasd-controls>
+    <a-entity id="camera" camera look-controls position="0 1.6 0">
+      <a-cursor fuse="false" raycaster="objects: .interactable" material="color: white; shader: flat"></a-cursor>
+    </a-entity>
+  </a-entity>
+
+
+  <a-plane rotation="-90 0 0" width="10" height="10" color="#222"></a-plane>
+  <a-plane position="0 10 0" rotation="-90 0 0" width="10" height="10" color="#ce93d8"></a-plane> 
+  <a-plane position="0 2 -5" rotation="0 0 0" width="10" height="7" color="#6a1b9a"></a-plane> 
+  <a-plane position="0 2 5" rotation="0 180 0" width="10" height="7" color="#9c27b0"></a-plane> 
+  <a-plane position="-5 2 0" rotation="0 90 0" width="10" height="7" color="#7b1fa2"></a-plane> 
+  <a-plane position="5 2 0" rotation="0 -90 0" width="10" height="7" color="#ab47bc"></a-plane> 
+
+
+  <a-entity id="porta" class="interactable"
+            gltf-model="url(coisas/modelos/Door.glb)"
+            position="0 2 -5"
+            rotation="0 90 0"
+            scale="0.02 0.02 0.02"
+            interactive-door>
+  </a-entity>
+
+  <a-entity id="doorLabel"
+            text="value: clica em um objeto; align: center; color: white; width: 4"
+            position="0 5 -5">
+  </a-entity>
+
+
+  <a-entity id="Mesacomobjeto" class="interactable"
+            gltf-model="url(coisas/modelos/Table.glb)"
+            position="0 0 0"
+            scale="45 45 45"
+            interactive-table-potion>
+  </a-entity>
+
+  <a-entity id="objeto"
+            gltf-model="url(coisas/modelos/DrinkMe.glb)"
+            position="0 1.5 0"
+            scale="0.5 0.5 0.5">
+  </a-entity>
+
+  <a-entity id="mesa" class="interactable"
+            gltf-model="url(coisas/modelos/Table.glb)"
+            position="3 0 -3"
+            scale="45 45 45"
+            interactive-table-simple>
+  </a-entity>
+
+  <a-entity id="cadeiraparada" class="interactable"
+            gltf-model="url(coisas/modelos/Chair.glb)"
+            position="-1 0 1"
+            scale="0.02 0.02 0.02"
+            interactive-chair="label: Não se deve perguntar 'como', mas 'porquê'.">
+  </a-entity>
+
+  <a-entity id="cadeiramexer1" class="interactable"
+            gltf-model="url(coisas/modelos/Chair.glb)"
+            position="4 2 1"
+            scale="0.02 0.02 0.02"
+            rotation="80 40 10"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+            interactive-chair="label: Há dias em que nada faz sentido e ainda assim tudo é lógico.">
+  </a-entity>
+
+  <a-entity id="cadeiramexer2" class="interactable"
+            gltf-model="url(coisas/modelos/Chair.glb)"
+            position="-4 3 -1"
+            scale="0.02 0.02 0.02"
+            rotation="30 45 25"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+            interactive-chair="label: O que é real? Tudo depende do ponto de vista.">
+  </a-entity>
+
+  <a-entity id="cadeiramexer3" class="interactable"
+            gltf-model="url(coisas/modelos/Chair.glb)"
+            position="3 2 -2"
+            scale="0.02 0.02 0.02"
+            rotation="50 20 60"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+            interactive-chair="label: Aqui todos somos loucos">
+  </a-entity>
+
+
+  <a-entity id="sommesa"
+            sound="src: url(coisas/som/som.mp3); volume: 0.7">
+  </a-entity>
+
+
+  <script>
+    AFRAME.registerComponent('interactive-chair', {
+      schema: { label: {type: 'string', default: 'Cadeira'} },
+      init: function() {
+        const labelEl = document.querySelector('#doorLabel');
+        this.el.addEventListener('click', () => {
+          labelEl.setAttribute('text','value', this.data.label);
+        });
+      }
+    });
+
+    AFRAME.registerComponent('interactive-table-simple', {
+      init: function() {
+        const labelEl = document.querySelector('#doorLabel');
+        const el = this.el;
+        el.addEventListener('mouseenter', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('green'); });
+        });
+        el.addEventListener('mouseleave', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
+        });
+        el.addEventListener('click', () => {
+          labelEl.setAttribute('text','value','O impossível é apenas uma opinião');
+        });
+      }
+    });
+
+    AFRAME.registerComponent('interactive-table-potion', {
+      init: function() {
+        const labelEl = document.querySelector('#doorLabel');
+        const potionSound = document.querySelector('#potionSound');
+        const rig = document.querySelector('#rig');
+        const el = this.el;
+        el.addEventListener('mouseenter', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('pink'); });
+        });
+        el.addEventListener('mouseleave', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
+        });
+        el.addEventListener('click', () => {
+          const scale = rig.object3D.scale.x;
+          if (scale === 1) rig.object3D.scale.set(0.2, 0.2, 0.2);
+          else rig.object3D.scale.set(1, 1, 1);
+          labelEl.setAttribute('text','value','Se eu ficar pequena ou grande demais, o mundo muda de tamanho também.');
+          potionSound.components.sound.playSound();
+        });
+      }
+    });
+
+    AFRAME.registerComponent('interactive-door', {
+      init: function() {
+        const labelEl = document.querySelector('#doorLabel');
+        const rig = document.querySelector('#rig');
+        const el = this.el;
+        el.addEventListener('mouseenter', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('yellow'); });
+        });
+        el.addEventListener('mouseleave', () => {
+          el.getObject3D('mesh').traverse(node => { if(node.isMesh) node.material.color.set('white'); });
+        });
+        el.addEventListener('click', () => {
+          rig.object3D.position.set(0, 1.6, 4); 
+          rig.object3D.scale.set(1,1,1);
+          labelEl.setAttribute('text','value','Não vale a pena voltar a ontem, porque eu era outra pessoa.');
+        });
+      }
+    });
+  </script>
+
+</a-scene>
+</body>
+</html>
+
